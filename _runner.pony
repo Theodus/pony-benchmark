@@ -27,11 +27,11 @@ actor _Runner
 
   fun ref _run(bench_data: _BenchData) =>
     bench_data.benchmark.before()
-    // _gc_next_behavior()
-    _run_iteration(consume bench_data, _iterations)
+    _gc_next_behavior()
+    _run_iteration(consume bench_data)
 
-  be _run_iteration(bench_data: _BenchData, n: U64) =>
-    if n == 0 then
+  be _run_iteration(bench_data: _BenchData, n: U64 = 0) =>
+    if n == _iterations then
       _complete(consume bench_data)
     else
       try \likely\
@@ -42,12 +42,12 @@ actor _Runner
         Time.perf_end()
         // Debug([t; t'; t' - t])
         bench_data.results.push(t' - t)
-        // _gc_next_behavior()
-        _run_iteration(consume bench_data, n - 1)
       else
         _fail()
         return
       end
+      _gc_next_behavior()
+      _run_iteration(consume bench_data, n + 1)
     end
 
   fun ref _complete(bench_data: _BenchData) =>
