@@ -4,10 +4,16 @@ actor Main is BenchmarkList
     PonyBench(env, this)
 
   fun tag benchmarks(bench: PonyBench) =>
+    // bench(Nothing)
     bench(Fib(5))
     bench(Fib(10))
     bench(Fib(20))
     bench(Fib(40))
+
+class iso Nothing is MicroBenchmark
+  fun name(): String => "Nothing"
+
+  fun apply() => None
 
 class iso Fib is MicroBenchmark
   let _n: U64

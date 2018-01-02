@@ -7,10 +7,9 @@ actor _Runner
 
   // TODO document and make configurable per-benchmark
   let _sample_time: U64 = 1_000_000_000
-  let _max_iterations: U64 = 100_000_000
-  let _samples: U64 = 100
+  let _max_iterations: U64 = 100_000
 
-  var _state: _RunState = _Calc
+  var _warmup: Bool = true
   var _iterations: U64 = 0
   var _start_cpu_time: U64 = 0
   var _name: String = ""
@@ -19,7 +18,7 @@ actor _Runner
     _ponybench = ponybench
 
   be apply(bench_data: _BenchData) =>
-    _state = _Calc
+    _warmup = true
     _iterations = 1
     _name = bench_data.benchmark.name()
 
@@ -28,49 +27,39 @@ actor _Runner
 
   fun ref _run(bench_data: _BenchData) =>
     bench_data.benchmark.before()
-    _gc_next_behavior()
+    // _gc_next_behavior()
     _run_iteration(consume bench_data, _iterations)
 
   be _run_iteration(bench_data: _BenchData, n: U64) =>
     if n == 0 then
-      let t' = Time.nanos()
-      Time.perf_end()
-      _complete(consume bench_data, t')
+      _complete(consume bench_data)
     else
-      if n == _iterations then
+      try \likely\
         Time.perf_begin()
-        _start_cpu_time = Time.nanos()
-      end
-
-      try
-        // TODO mark this as expected branch
-        bench_data.benchmark.apply()?
+        let t = Time.nanos()
+        bench_data.benchmark()?
+        let t' = Time.nanos()
+        Time.perf_end()
+        // Debug([t; t'; t' - t])
+        bench_data.results.push(t' - t)
+        // _gc_next_behavior()
         _run_iteration(consume bench_data, n - 1)
       else
         _fail()
+        return
       end
     end
 
-  fun ref _complete(bench_data: _BenchData, t': U64) =>
+  fun ref _complete(bench_data: _BenchData) =>
     bench_data.benchmark.after()
-    match _state
-    | _Calc =>
-      match _calc_iterations(t')
-      | let n: U64 =>
-        Debug(["calc"; n])
-        _iterations = n
-      | None => _state = _Warmup
+    if _warmup then
+      let total_runtime = bench_data.sum()
+      match _calc_iterations(total_runtime)
+      | let n: U64 => _iterations = n
+      | None => _warmup = false
       end
       _run(consume bench_data)
-    | _Warmup =>
-      _state = _Bench
-      Debug(["warmup"])
-      _run(consume bench_data)
-    | _Bench =>
-      Debug(["bench"; _iterations])
-      // TODO warmup & bench loop for `_samples`
-      bench_data.results.push(t')
-
+    else
       bench_data.iterations = _iterations
       _ponybench._complete(consume bench_data)
     end
@@ -78,16 +67,18 @@ actor _Runner
   fun ref _fail() =>
     _ponybench._fail(_name)
 
-  fun ref _calc_iterations(t': U64): (U64 | None) =>
-    let time = t' - _start_cpu_time
-    let nspi = time / _iterations
-    if (time < _sample_time) and (_iterations < _max_iterations) then
+  fun ref _calc_iterations(total_runtime: U64): (U64 | None) =>
+    let nspi = total_runtime / _iterations
+    if (total_runtime < _sample_time) and (_iterations < _max_iterations) then
       var itrs' =
         if nspi == 0 then _max_iterations
         else _sample_time / nspi
         end
       itrs' = (itrs' + (itrs' / 5)).min(_iterations * 100).max(_iterations + 1)
       _round_up(itrs')
+    else
+      _iterations = _iterations.min(_max_iterations)
+      None
     end
 
   fun ref _round_up(x: U64): U64 =>
@@ -116,8 +107,3 @@ actor _Runner
 
   fun ref _gc_next_behavior() =>
     @pony_triggergc[None](@pony_ctx[Pointer[None]]())
-
-primitive _Calc
-primitive _Warmup
-primitive _Bench
-type _RunState is (_Calc | _Warmup | _Bench)
