@@ -1,3 +1,4 @@
+use "collections" // TODO remove
 use "term"
 
 interface tag _OutputManager
@@ -7,6 +8,7 @@ actor _TerminalOutput is _OutputManager
   let _env: Env
   let _ponybench: PonyBench
   var _overhead_mean: U64 = 0
+  var _overhead_median: U64 = 0
 
   new create(env: Env, ponybench: PonyBench) =>
     _env = env
@@ -19,12 +21,21 @@ actor _TerminalOutput is _OutputManager
       else
         _benchmark(consume bench_data)
       end
+
+    // try
+    //   for i in Range(0, bench_data'.results.size()) do
+    //     _env.out.write(bench_data'.results(i)?.string() + ",")
+    //   end
+    //   _print("")
+    // end
+
     _ponybench._next_benchmark(consume bench_data')
 
   fun ref _overhead(bench_data: _BenchData): _BenchData^ =>
     _overhead_mean = bench_data.mean()
-    _print("overhead mean: " + _overhead_mean.string() + "ns/iter")
-    _print("overhead median: " + bench_data.median().string() + "ns/iter")
+    _overhead_median = bench_data.median()
+    _print("overhead mean: " + _overhead_mean.string() + " ns/iter")
+    _print("overhead median: " + _overhead_median.string() + " ns/iter")
     _print("overhead standard deviation: " + bench_data.std_dev().string()  + " ns/iter")
     if _overhead_mean > 50 then
       _warn("High overhead detected, benchmark measurements may be noisy (this may be a result of CPU scaling).")
@@ -44,6 +55,7 @@ actor _TerminalOutput is _OutputManager
     _print("iterations: " + iters.string())
     _print("total runtime: " + sum.string() + " ns")
     _print("adjusted mean: " + (mean - _overhead_mean).string() + " ns/iter")
+    _print("adjusted median: " + (median - _overhead_median).string() + " ns/iter")
     _print("standard deviation: " + bench_data.std_dev().string()  + " ns/iter")
     consume bench_data
 

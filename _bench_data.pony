@@ -43,7 +43,7 @@ class iso _BenchData
     end
 
   fun ref std_dev(): U64 =>
-    // population standard deviation
+    // sample standard deviation
     if results.size() < 2 then return 0 end
     try
       var sum_squares: U64 = 0
@@ -55,7 +55,7 @@ class iso _BenchData
       let mean' = mean().f64()
       let mean_sq = mean' * mean'
       let len = results.size().f64()
-      ((len / (len - 1.0)).sqrt() * (avg_squares - mean_sq)).u64()
+      ((len / (len - 1.0)) * (avg_squares - mean_sq)).sqrt().u64()
     else
       0
     end
