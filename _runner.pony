@@ -4,8 +4,8 @@ actor _Runner
   let _ponybench: PonyBench
 
   // TODO document and make configurable per-benchmark
-  let _iterations: U64 = 100_000
-  let _warmup_iterations: U64 = 10
+  let _iterations: U64 = 1_000_000
+  let _warmup_iterations: U64 = 5
 
   var _warmup: Bool = true
   var _start_cpu_time: U64 = 0

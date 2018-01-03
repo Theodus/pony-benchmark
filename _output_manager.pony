@@ -1,4 +1,3 @@
-use "collections" // TODO remove
 use "term"
 
 interface tag _OutputManager
@@ -21,13 +20,6 @@ actor _TerminalOutput is _OutputManager
       else
         _benchmark(consume bench_data)
       end
-
-    // try
-    //   for i in Range(0, bench_data'.results.size()) do
-    //     _env.out.write(bench_data'.results(i)?.string() + ",")
-    //   end
-    //   _print("")
-    // end
 
     _ponybench._next_benchmark(consume bench_data')
 
