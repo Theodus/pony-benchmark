@@ -1,5 +1,3 @@
-use "collections"
-use "debug" // TODO remove
 use "time"
 
 actor _Runner
@@ -40,7 +38,6 @@ actor _Runner
         bench_data.benchmark()?
         let t' = Time.nanos()
         Time.perf_end()
-        // Debug([t; t'; t' - t])
         bench_data.results.push(t' - t)
       else
         _fail()

@@ -9,7 +9,7 @@ interface tag BenchmarkList
   fun tag benchmarks(bench: PonyBench)
 
 class iso _OverheadBenchmark is MicroBenchmark
-  fun name(): String => "overhead"
+  fun name(): String => "PonyBench Overhead"
 
   fun ref apply() =>
     DoNotOptimise[None](None)
