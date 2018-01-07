@@ -18,9 +18,12 @@ actor _Runner
 
   be apply(bench_data: _BenchData) =>
     bench_data.results.clear()
-    bench_data.benchmark.before()
     _iterations = 1
     _warmup = true
+    _run(consume bench_data)
+
+  fun ref _run(bench_data: _BenchData) =>
+    bench_data.benchmark.before()
     _gc_next_behavior()
     _run_iteration(consume bench_data)
 
@@ -49,12 +52,11 @@ actor _Runner
       | let n: U64 => _iterations = n
       | None => _warmup = false
       end
-      _gc_next_behavior()
-      _run_iteration(consume bench_data)
+      _run(consume bench_data)
     else
       bench_data.results.push(t)
       if bench_data.results.size() < bench_data.samples then
-        _run_iteration(consume bench_data)
+        _run(consume bench_data)
       else
         bench_data.iterations = _iterations
         _ponybench._complete(consume bench_data)
