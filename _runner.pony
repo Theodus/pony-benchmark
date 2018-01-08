@@ -17,7 +17,7 @@ actor _Runner
     _ponybench = ponybench
 
   be apply(bench_data: _BenchData) =>
-    bench_data.results.clear()
+    bench_data.clear()
     _iterations = 1
     _warmup = true
     _run(consume bench_data)
@@ -54,8 +54,8 @@ actor _Runner
       end
       _run(consume bench_data)
     else
-      bench_data.results.push(t)
-      if bench_data.results.size() < bench_data.samples then
+      bench_data.push(t)
+      if bench_data.size() < bench_data.samples then
         _run(consume bench_data)
       else
         bench_data.iterations = _iterations
