@@ -6,7 +6,7 @@ actor _Runner
 
   // TODO make configurable
   let _max_iterations: U64 = 1_000_000_000
-  let _sample_time: U64 = 100_000_000
+  let _max_sample_time: U64 = 1_000_000_000
 
   var _iterations: U64 = 1
   var _warmup: Bool = false
@@ -68,10 +68,10 @@ actor _Runner
 
   fun ref _calc_iterations(total_runtime: U64): (U64 | None) =>
     let nspi = total_runtime / _iterations
-    if (total_runtime < _sample_time) and (_iterations < _max_iterations) then
+    if (total_runtime < _max_sample_time) and (_iterations < _max_iterations) then
       var itrs' =
         if nspi == 0 then _max_iterations
-        else _sample_time / nspi
+        else _max_sample_time / nspi
         end
       itrs' = (itrs' + (itrs' / 5)).min(_iterations * 100).max(_iterations + 1)
       _round_up(itrs')

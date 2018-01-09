@@ -4,7 +4,7 @@ class iso _BenchData
   var benchmark: MicroBenchmark
   embed results: Array[U64]
   var iterations: U64 = 0
-  var samples: USize = 100
+  var samples: USize = 20
 
   new iso overhead() =>
     results = recover Array[U64](samples) end
@@ -22,6 +22,15 @@ class iso _BenchData
 
   fun ref size(): USize =>
     results.size()
+
+  fun raw_str(): String =>
+    let str = recover String end
+    for n in results.values() do
+      let nspi = n / iterations
+      str .> append(nspi.string()) .> append(",")
+    end
+    if results.size() > 0 then try str.pop()? end end
+    str
 
   fun ref sum(): U64 =>
     var sum': U64 = 0
