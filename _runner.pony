@@ -3,11 +3,7 @@ use "time"
 
 actor _Runner
   let _ponybench: PonyBench
-
-  // TODO make configurable
-  let _max_iterations: U64 = 1_000_000_000
-  let _max_sample_time: U64 = 1_000_000_000
-
+  var _config: BenchConfig = BenchConfig
   var _iterations: U64 = 1
   var _warmup: Bool = false
   var _start_cpu_time: U64 = 0
@@ -18,6 +14,7 @@ actor _Runner
 
   be apply(bench_data: _BenchData) =>
     bench_data.clear()
+    _config = bench_data.benchmark.config()
     _iterations = 1
     _warmup = true
     _run(consume bench_data)
@@ -55,7 +52,7 @@ actor _Runner
       _run(consume bench_data)
     else
       bench_data.push(t)
-      if bench_data.size() < bench_data.samples then
+      if bench_data.size() < _config.samples then
         _run(consume bench_data)
       else
         bench_data.iterations = _iterations
@@ -67,16 +64,18 @@ actor _Runner
     _ponybench._fail(_name)
 
   fun ref _calc_iterations(total_runtime: U64): (U64 | None) =>
+    let max_i = _config.max_iterations
+    let max_t = _config.max_sample_time
     let nspi = total_runtime / _iterations
-    if (total_runtime < _max_sample_time) and (_iterations < _max_iterations) then
+    if (total_runtime < max_t) and (_iterations < max_i) then
       var itrs' =
-        if nspi == 0 then _max_iterations
-        else _max_sample_time / nspi
+        if nspi == 0 then max_i
+        else max_t / nspi
         end
       itrs' = (itrs' + (itrs' / 5)).min(_iterations * 100).max(_iterations + 1)
       _round_up(itrs')
     else
-      _iterations = _iterations.min(_max_iterations)
+      _iterations = _iterations.min(max_i)
       None
     end
 

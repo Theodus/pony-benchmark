@@ -7,14 +7,20 @@ interface tag _OutputManager
 actor _TerminalOutput is _OutputManager
   let _env: Env
   let _ponybench: PonyBench
+  let _overhead_id: MicroBenchmark tag
   var _overhead_nspi: F64 = 0
 
-  new create(env: Env, ponybench: PonyBench) =>
+  new create(
+    env: Env,
+    ponybench: PonyBench,
+    overhead_id: MicroBenchmark tag)
+  =>
     _env = env
     _ponybench = ponybench
+    _overhead_id = overhead_id
 
   be apply(bench_data: _BenchData) =>
-    if bench_data.benchmark.name() == "PonyBench Overhead" then
+    if bench_data.benchmark is _overhead_id then
       _overhead_nspi = bench_data.mean() / bench_data.iterations.f64()
     end
 

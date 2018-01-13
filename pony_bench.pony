@@ -8,10 +8,9 @@ actor PonyBench
 
   new create(env: Env, list: BenchmarkList) =>
     _env = env
-    _output_manager = _TerminalOutput(_env, this)
+    let bench_data = _BenchData.overhead(list.overhead())
+    _output_manager = _TerminalOutput(_env, this, bench_data.benchmark)
     // _output_manager = _CSVOutput(_env, this)
-
-    let bench_data = _BenchData.overhead()
     _running = true
     _runner(consume bench_data)
 
