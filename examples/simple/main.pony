@@ -1,31 +1,23 @@
+use "../.."
 
 actor Main is BenchmarkList
   new create(env: Env) =>
     PonyBench(env, this)
 
   fun tag benchmarks(bench: PonyBench) =>
-    bench(_Fib(10))
-    bench(_Fib(20))
-    bench(_Fib(5))
-    bench(_Nothing)
-    bench(_Fib(5))
-    bench(_Fib(10))
-    bench(_Fib(20))
-    bench(_Fib(40))
+    bench(Fib(5))
+    bench(Fib(10))
+    bench(Fib(20))
+    bench(Fib(40))
 
-class iso _Nothing is MicroBenchmark
-  fun name(): String => "Nothing (TODO remove negatives)"
-
-  fun apply() => None
-
-class iso _Fib is MicroBenchmark
+class iso Fib is MicroBenchmark
   let _n: U64
 
   new iso create(n: U64) =>
     _n = n
 
   fun name(): String =>
-    "_Fib(" + _n.string() + ")"
+    "Fib(" + _n.string() + ")"
 
   fun apply() =>
     DoNotOptimise[U64](_fib(_n))

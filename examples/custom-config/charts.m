@@ -8,13 +8,18 @@ sizes = 2.^(0:1:20);
 
 %% box plot
 boxplot(ops-overhead)
+grid on
 xticklabels(string(sizes))
+xlabel('size')
+ylabel('runtime (ns)')
 
 %% histogram
 figure
 idxs = fliplr(1+5:5:21);
 for i = idxs
-    histogram(ops(:,i))
+    histogram(ops(:,i)-overhead)
     hold on
 end
 legend('apply at size ' + string(sizes(idxs)))
+xlabel('runtime (ns)')
+ylabel('occurences')

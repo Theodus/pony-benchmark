@@ -1,3 +1,4 @@
 pony-benchmark
+examples/simple/simple
 examples/custom-config/custom-config
 examples/custom-config/data.csv

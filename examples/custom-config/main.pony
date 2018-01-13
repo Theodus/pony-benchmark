@@ -41,7 +41,9 @@ class iso BenchApply is MicroBenchmark
     "apply " + _size.string()
 
   fun config(): BenchConfig =>
-    BenchConfig(20)
+    BenchConfig(where
+      samples' = 20,
+      max_sample_time' = 200_000_000)
 
   fun ref before() =>
     _p = p.Vec[U64]
