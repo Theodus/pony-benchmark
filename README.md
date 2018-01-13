@@ -87,14 +87,18 @@ M = csvread('data.csv');
 M = M';
 overhead = median(M(:,1));
 ops = M(:,2:end);
-sizes = 2.^(0:1:20);
+pows = 0:1:20;
+sizes = 2.^pows;
 
 %% box plot
 boxplot(ops-overhead)
 grid on
-xticklabels(string(sizes))
+xticklabels('2^'+string(pows))
+title('Persistent Vec Apply')
 xlabel('size')
 ylabel('runtime (ns)')
+ax = gca;
+ax.FontSize = 24;
 
 %% histogram
 figure
@@ -103,9 +107,12 @@ for i = idxs
     histogram(ops(:,i)-overhead)
     hold on
 end
-legend('apply at size ' + string(sizes(idxs)))
+title('Histogram of Persistent Vec Apply (sizes 32^n)')
+legend('size ' + string(sizes(idxs)))
 xlabel('runtime (ns)')
 ylabel('occurences')
+ax = gca;
+ax.FontSize = 24;
 ```
 
 #### Charts
