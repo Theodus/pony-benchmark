@@ -7,10 +7,13 @@ actor PonyBench
   var _running: Bool = false
 
   new create(env: Env, list: BenchmarkList) =>
-    _env = env
+    _env = consume env
     let bench_data = _BenchData.overhead(list.overhead())
-    _output_manager = _TerminalOutput(_env, this, bench_data.benchmark)
-    // _output_manager = _CSVOutput(_env, this)
+    _output_manager =
+      if _env.args.contains("-csv", {(a, b) => a == b })
+      then _CSVOutput(_env, this)
+      else _TerminalOutput(_env, this, bench_data.benchmark)
+      end
     _running = true
     _runner(consume bench_data)
 
