@@ -109,6 +109,6 @@ ylabel('occurences')
 ```
 
 #### Charts
-![alt text](https://raw.githubusercontent.com/Theodus/pony-benchmark/master/examples/custom-config/charts/box.jpg)
+![alt text](https://github.com/Theodus/pony-benchmark/raw/master/examples/custom-config/charts/box.jpg)
 
-![alt text](https://raw.githubusercontent.com/Theodus/pony-benchmark/master/examples/custom-config/charts/hist.jpg)
+![alt text](https://github.com/Theodus/pony-benchmark/raw/master/examples/custom-config/charts/hist.jpg)
