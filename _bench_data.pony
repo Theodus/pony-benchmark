@@ -22,8 +22,9 @@ class iso _BenchData
   fun ref size(): USize =>
     results.size()
 
-  fun raw_str(): String =>
+  fun ref raw_str(): String =>
     let str = recover String end
+    str .> append(benchmark.name()) .> append(",")
     for n in results.values() do
       let nspi = n / iterations
       str .> append(nspi.string()) .> append(",")

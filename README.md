@@ -62,7 +62,7 @@ $ ponyc -V0 --runtimebc examples/custom-config -b custom-config && ./custom-conf
 ```matlab
 close all; clear; clc
 
-M = csvread('data.csv');
+M = csvread('data.csv',0,1);
 M = M';
 overhead = median(M(:,1));
 ops = M(:,2:end);
