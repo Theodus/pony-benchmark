@@ -28,7 +28,6 @@ actor _TerminalOutput is _OutputManager
     _print_heading()
 
   be apply(bench_data: _BenchData) =>
-    // TODO optional adjustment (possible warning for high dev)
     var adjust = not _noadjust
     if bench_data.benchmark is _overhead_id then
       _overhead_mean = bench_data.mean() / bench_data.iterations.f64()
@@ -48,7 +47,6 @@ actor _TerminalOutput is _OutputManager
     let mean' = bench_data.mean()
     var mean = mean' / iters
     var median = bench_data.median() / iters
-    // TODO check for negative results from adjustment
     if adjust then
       mean = mean - _overhead_mean
       median =  median - _overhead_median
@@ -109,7 +107,6 @@ actor _CSVOutput
     _ponybench = ponybench
 
   be apply(bench_data: _BenchData) =>
-    // TODO include benchmark name
     _print(bench_data.raw_str())
     _ponybench._next_benchmark(consume bench_data)
 

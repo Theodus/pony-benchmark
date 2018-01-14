@@ -33,8 +33,6 @@ class iso Fib is MicroBenchmark
     end
 ```
 
-(TODO output to table)
-
 #### Output
 ```
 $ ponyc -V0 --runtimebc examples/simple -b simple && ./simple --ponynoyield
@@ -55,8 +53,6 @@ Fib(40)                             324952472 ns      324871552 ns      ±0.21% 
 ```bash
 $ ponyc -V0 --runtimebc examples/custom-config -b custom-config && ./custom-config --ponynoyield -csv > data.csv
 ```
-
-(TODO use something more accessible than MATLAB for example)
 
 #### Matlab Code (Visualization example)
 ```matlab
