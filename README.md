@@ -36,38 +36,17 @@ class iso Fib is MicroBenchmark
 (TODO output to table)
 
 #### Output
-```bash
+```
 $ ponyc -V0 --runtimebc examples/simple -b simple && ./simple --ponynoyield
+Benchmark results will have their mean and median adjusted for overhead.
+You may disable this with --noadjust.
 
----- Benchmark: PonyBench Overhead
-iterations          1000000
-mean            2.15341e+08 ns,      215.341 ns/iter
-adjusted mean             0 ns/iter
-std. dev.       5.11845e+06 ns
-
----- Benchmark: Fib(5)
-iterations          1000000
-mean             2.1871e+08 ns,       218.71 ns/iter
-adjusted mean       3.36864 ns/iter
-std. dev.            372806 ns
-
----- Benchmark: Fib(10)
-iterations           500000
-mean            1.88764e+08 ns,      377.527 ns/iter
-adjusted mean       162.186 ns/iter
-std. dev.       2.09649e+06 ns
-
----- Benchmark: Fib(20)
-iterations            10000
-mean            2.17067e+08 ns,      21706.7 ns/iter
-adjusted mean       21491.4 ns/iter
-std. dev.            201038 ns
-
----- Benchmark: Fib(40)
-iterations                1
-mean            3.24522e+08 ns,  3.24522e+08 ns/iter
-adjusted mean   3.24522e+08 ns/iter
-std. dev.            190322 ns
+Benchmark                                   mean            median   deviation  iterations
+PonyBench Overhead                        206 ns            205 ns      ±1.91%     1000000
+Fib(5)                                     15 ns             16 ns      ±0.11%     1000000
+Fib(10)                                   180 ns            180 ns      ±0.55%      500000
+Fib(20)                                 21525 ns          21511 ns      ±0.30%       10000
+Fib(40)                             324952472 ns      324871552 ns      ±0.21%           1
 ```
 
 ## CSV Output
