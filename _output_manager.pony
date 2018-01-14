@@ -8,7 +8,8 @@ actor _TerminalOutput is _OutputManager
   let _env: Env
   let _ponybench: PonyBench
   let _overhead_id: MicroBenchmark tag
-  var _overhead_nspi: F64 = 0
+  var _overhead_mean: F64 = 0
+  var _overhead_median: F64 = 0
 
   new create(
     env: Env,
@@ -19,9 +20,12 @@ actor _TerminalOutput is _OutputManager
     _ponybench = ponybench
     _overhead_id = overhead_id
 
+    _print_heading()
+
   be apply(bench_data: _BenchData) =>
     if bench_data.benchmark is _overhead_id then
-      _overhead_nspi = bench_data.mean() / bench_data.iterations.f64()
+      _overhead_mean = bench_data.mean() / bench_data.iterations.f64()
+      _overhead_median = bench_data.median() / bench_data.iterations.f64()
     end
 
     let bench_data' = _print_benchmark(consume bench_data)
@@ -29,32 +33,35 @@ actor _TerminalOutput is _OutputManager
 
 
   fun ref _print_benchmark(bench_data: _BenchData): _BenchData^ =>
-    _print_heading(bench_data.benchmark.name())
-
-    let iters = bench_data.iterations
-    // let samples = bench_data.samples
-
-    let mean = bench_data.mean()
-    let nspi = mean / iters.f64()
-
-    let nspi' = nspi - _overhead_nspi
-
-    let std_dev = bench_data.std_dev()
-
-    _print("iterations     "
-      + Format.int[U64](iters where width = 12))
-    _print("mean           "
-      + Format.float[F64](mean where width = 12) + " ns, "
-      + Format.float[F64](nspi where width = 12) + " ns/iter")
-    _print("adjusted mean  "
-      + Format.float[F64](nspi' where width = 12) + " ns/iter")
-    _print("std. dev.      "
-      + Format.float[F64](std_dev where width = 12) + " ns")
+    let iters = bench_data.iterations.f64()
+    // TODO optional adjustment (possible warning for high dev)
+    // TODO check for negative results from adjustment
+    let mean = (bench_data.mean() / iters) - _overhead_mean
+    let median = (bench_data.median() / iters) - _overhead_median
+    _print_result(
+      bench_data.benchmark.name(),
+      mean.round().u64().string(),
+      median.round().u64().string(),
+      Format.float[F64](bench_data.std_dev() / iters
+        where prec = 2, fmt = FormatFix))
 
     consume bench_data
 
-  fun _print_heading(name: String) =>
-    _print(ANSI.bold() + "\n---- Benchmark: " + name + ANSI.reset())
+  fun _print_heading() =>
+    _print(
+      ANSI.bold()
+      + Format("Benchmark" where width = 30)
+      + Format("mean" where width = 16, align = AlignRight)
+      + Format("median" where width = 16, align = AlignRight)
+      + Format("deviation" where width = 16, align = AlignRight)
+      + ANSI.reset())
+
+  fun _print_result(name: String, mean: String, median: String, dev: String) =>
+    _print(
+      Format(name where width = 30)
+      + Format(mean + " ns" where width = 16, align = AlignRight)
+      + Format(median + " ns" where width = 16, align = AlignRight)
+      + Format("±" + dev + "%" where width = 17, align = AlignRight))
 
   fun _print(msg: String) =>
     _env.out.print(msg)
@@ -71,6 +78,7 @@ actor _CSVOutput
     _ponybench = ponybench
 
   be apply(bench_data: _BenchData) =>
+    // TODO include benchmark name
     _print(bench_data.raw_str())
     _ponybench._next_benchmark(consume bench_data)
 

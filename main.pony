@@ -14,7 +14,7 @@ actor Main is BenchmarkList
     bench(_Fib(40))
 
 class iso _Nothing is MicroBenchmark
-  fun name(): String => "Nothing (TODO remove negatives)"
+  fun name(): String => "Nothing"
 
   fun apply() => None
 
