@@ -13,7 +13,6 @@ actor _Runner
     _ponybench = ponybench
 
   be apply(bench_data: _BenchData) =>
-    bench_data.clear()
     _config = bench_data.benchmark.config()
     _iterations = 1
     _warmup = true

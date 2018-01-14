@@ -1,4 +1,7 @@
 
+// TODO document that this is best used with
+// --runtimebc and --ponynoyield
+
 actor PonyBench
   let _env: Env
   let _output_manager: _OutputManager
@@ -8,19 +11,21 @@ actor PonyBench
 
   new create(env: Env, list: BenchmarkList) =>
     _env = consume env
-    let bench_data = _BenchData.overhead(list.overhead())
     _output_manager =
       if _env.args.contains("-csv", {(a, b) => a == b })
       then _CSVOutput(_env, this)
-      else _TerminalOutput(_env, this, bench_data.benchmark)
+      else _TerminalOutput(_env, this)
       end
-    _running = true
-    _runner(consume bench_data)
 
     list.benchmarks(this)
 
   be apply(bench: MicroBenchmark) =>
+    _bench_q.push(bench.overhead())
     _bench_q.push(consume bench)
+    if not _running then
+      _running = true
+      _next_benchmark(_BenchData.dummy())
+    end
 
   be _next_benchmark(bench_data: _BenchData) =>
     if _bench_q.size() > 0 then

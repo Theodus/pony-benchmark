@@ -8,25 +8,10 @@ actor Main is BenchmarkList
   new create(env: Env) =>
     PonyBench(env, this)
 
-  fun tag overhead(): MicroBenchmark^ =>
-    BenchOverhead
-
   fun tag benchmarks(bench: PonyBench) =>
     for n in Range(0, 21) do
       bench(BenchApply(1 << n))
     end
-
-class iso BenchOverhead is MicroBenchmark
-  embed _rand: Rand
-
-  new iso create() =>
-    _rand = Rand(Time.millis())
-
-  fun name(): String => "Benchmark Overhead"
-
-  fun ref apply() =>
-    DoNotOptimise[USize](_rand.usize())
-    DoNotOptimise.observe()
 
 class iso BenchApply is MicroBenchmark
   let _size: USize
@@ -45,6 +30,8 @@ class iso BenchApply is MicroBenchmark
       samples' = 20,
       max_sample_time' = 200_000_000)
 
+  fun overhead(): MicroBenchmark^ => BenchApplyOverhead
+
   fun ref before() =>
     _p = p.Vec[U64]
     for i in Range(0, _size) do _p = _p.push(i.u64()) end
@@ -52,4 +39,16 @@ class iso BenchApply is MicroBenchmark
   fun ref apply() ? =>
     let i = _rand.int[USize](_size)
     DoNotOptimise[U64](_p(i)?)
+    DoNotOptimise.observe()
+
+class iso BenchApplyOverhead is MicroBenchmark
+  embed _rand: Rand
+
+  new iso create() =>
+    _rand = Rand(Time.millis())
+
+  fun name(): String => "Benchmark Overhead"
+
+  fun ref apply() =>
+    DoNotOptimise[USize](_rand.usize())
     DoNotOptimise.observe()

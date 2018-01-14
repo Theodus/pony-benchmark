@@ -40,7 +40,6 @@ Benchmark results will have their mean and median adjusted for overhead.
 You may disable this with --noadjust.
 
 Benchmark                                   mean            median   deviation  iterations
-PonyBench Overhead                        206 ns            205 ns      ±1.91%     1000000
 Fib(5)                                     15 ns             16 ns      ±0.11%     1000000
 Fib(10)                                   180 ns            180 ns      ±0.55%      500000
 Fib(20)                                 21525 ns          21511 ns      ±0.30%       10000
@@ -59,9 +58,9 @@ $ ponyc -V0 --runtimebc examples/custom-config -b custom-config && ./custom-conf
 close all; clear; clc
 
 M = csvread('data.csv',0,1);
-M = M';
-overhead = median(M(:,1));
-ops = M(:,2:end);
+M = M'; % transpose so that results are column vectors
+overhead = median(M(:,1:2:end))
+ops = M(:,2:2:end);
 pows = 0:1:20;
 sizes = 2.^pows;
 
@@ -77,9 +76,9 @@ ax.FontSize = 24;
 
 %% histogram
 figure
-idxs = fliplr(1+5:5:21);
+idxs = fliplr(5+1:5:21);
 for i = idxs
-    histogram(ops(:,i)-overhead)
+    histogram(ops(:,i)-overhead(i))
     hold on
 end
 title('Histogram of Persistent Vec Apply (sizes 32^n)')

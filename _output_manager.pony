@@ -7,19 +7,13 @@ interface tag _OutputManager
 actor _TerminalOutput is _OutputManager
   let _env: Env
   let _ponybench: PonyBench
-  let _overhead_id: MicroBenchmark tag
   let _noadjust: Bool
   var _overhead_mean: F64 = 0
   var _overhead_median: F64 = 0
 
-  new create(
-    env: Env,
-    ponybench: PonyBench,
-    overhead_id: MicroBenchmark tag)
-  =>
+  new create(env: Env, ponybench: PonyBench) =>
     _env = env
     _ponybench = ponybench
-    _overhead_id = overhead_id
     _noadjust = _env.args.contains("--noadjust", {(a, b) => a == b })
     if not _noadjust then
       _print("Benchmark results will have their mean and median adjusted for overhead.")
@@ -28,14 +22,16 @@ actor _TerminalOutput is _OutputManager
     _print_heading()
 
   be apply(bench_data: _BenchData) =>
-    var adjust = not _noadjust
-    if bench_data.benchmark is _overhead_id then
-      _overhead_mean = bench_data.mean() / bench_data.iterations.f64()
-      _overhead_median = bench_data.median() / bench_data.iterations.f64()
-      adjust = false
-    end
-
-    let bench_data' = _print_benchmark(consume bench_data, adjust)
+    // _print(bench_data.raw_str())
+    let bench_data' =
+      if bench_data.benchmark.name() == "Benchmark Overhead" then
+        _overhead_mean = bench_data.mean() / bench_data.iterations.f64()
+        _overhead_median = bench_data.median() / bench_data.iterations.f64()
+        consume bench_data
+        // _print_benchmark(consume bench_data, false)
+      else
+        _print_benchmark(consume bench_data, not _noadjust)
+      end
     _ponybench._next_benchmark(consume bench_data')
 
   fun ref _print_benchmark(
@@ -100,6 +96,9 @@ actor _TerminalOutput is _OutputManager
   fun _warn(msg: String) =>
     _print(ANSI.yellow() + ANSI.bold() + "Warning: " + msg + ANSI.reset())
 
+// TODO document
+// overhead, results...
+// name, results...
 actor _CSVOutput
   let _env: Env
   let _ponybench: PonyBench

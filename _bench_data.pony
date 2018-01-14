@@ -5,12 +5,14 @@ class iso _BenchData
   embed results: Array[U64]
   var iterations: U64 = 0
 
-  new iso overhead(benchmark': MicroBenchmark) =>
-    benchmark = consume benchmark'
-    results = recover Array[U64](benchmark.config().samples) end
+  new iso dummy() =>
+    benchmark = OverheadBenchmark
+    results = recover [] end
 
   fun ref reset(benchmark': MicroBenchmark) =>
     benchmark = consume benchmark'
+    results.clear()
+    results.reserve(benchmark.config().samples)
     iterations = 0
 
   fun ref clear() =>

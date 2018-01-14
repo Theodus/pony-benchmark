@@ -2,15 +2,17 @@
 interface iso MicroBenchmark
   fun box name(): String
   fun box config(): BenchConfig => BenchConfig
+  fun box overhead(): MicroBenchmark^ => OverheadBenchmark
   fun ref before() => None
-  fun ref apply() ? // TODO document (single iteration!!)
+  // TODO document (single iteration!!)
+  fun ref apply() ?
   fun ref after() => None
 
 interface tag BenchmarkList
-  fun tag overhead(): MicroBenchmark^ => OverheadBenchmark
   fun tag benchmarks(bench: PonyBench)
 
-class val BenchConfig // TODO documentation
+// TODO documentation
+class val BenchConfig
   let samples: USize
   let max_iterations: U64
   let max_sample_time: U64
@@ -25,7 +27,8 @@ class val BenchConfig // TODO documentation
     max_sample_time = max_sample_time'
 
 class iso OverheadBenchmark is MicroBenchmark
-  fun name(): String => "PonyBench Overhead"
+  fun name(): String =>
+    "Benchmark Overhead"
 
   fun ref apply() =>
     DoNotOptimise[None](None)

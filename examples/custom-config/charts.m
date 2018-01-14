@@ -1,9 +1,9 @@
 close all; clear; clc
 
 M = csvread('data.csv',0,1);
-M = M';
-overhead = median(M(:,1));
-ops = M(:,2:end);
+M = M'; % transpose so that results are column vectors
+overhead = median(M(:,1:2:end))
+ops = M(:,2:2:end);
 pows = 0:1:20;
 sizes = 2.^pows;
 
@@ -19,9 +19,9 @@ ax.FontSize = 24;
 
 %% histogram
 figure
-idxs = fliplr(1+5:5:21);
+idxs = fliplr(5+1:5:21);
 for i = idxs
-    histogram(ops(:,i)-overhead)
+    histogram(ops(:,i)-overhead(i))
     hold on
 end
 title('Histogram of Persistent Vec Apply (sizes 32^n)')

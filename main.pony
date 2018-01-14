@@ -16,7 +16,9 @@ actor Main is BenchmarkList
 class iso _Nothing is MicroBenchmark
   fun name(): String => "Nothing"
 
-  fun apply() => None
+  fun apply() =>
+    DoNotOptimise[None](None)
+    DoNotOptimise.observe()
 
 class iso _Fib is MicroBenchmark
   let _n: U64
