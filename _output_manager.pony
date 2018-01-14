@@ -69,14 +69,15 @@ actor _TerminalOutput is _OutputManager
     consume bench_data
 
   fun _print_heading() =>
-    _print(
-      ANSI.bold()
-      + Format("Benchmark" where width = 30)
-      + Format("mean" where width = 18, align = AlignRight)
-      + Format("median" where width = 18, align = AlignRight)
-      + Format("deviation" where width = 12, align = AlignRight)
-      + Format("iterations" where width = 12, align = AlignRight)
-      + ANSI.reset())
+    _print("".join(
+      [ ANSI.bold()
+        Format("Benchmark" where width = 30)
+        Format("mean" where width = 18, align = AlignRight)
+        Format("median" where width = 18, align = AlignRight)
+        Format("deviation" where width = 12, align = AlignRight)
+        Format("iterations" where width = 12, align = AlignRight)
+        ANSI.reset()
+      ].values()))
 
   fun _print_result(
     name: String,
@@ -85,12 +86,13 @@ actor _TerminalOutput is _OutputManager
     dev: String,
     iters: String)
   =>
-    _print(
-      Format(name where width = 30)
-      + Format(mean + " ns" where width = 18, align = AlignRight)
-      + Format(median + " ns" where width = 18, align = AlignRight)
-      + Format("±" + dev + "%" where width = 13, align = AlignRight)
-      + Format(iters where width = 12, align = AlignRight))
+    _print("".join(
+      [ Format(name where width = 30)
+        Format(mean + " ns" where width = 18, align = AlignRight)
+        Format(median + " ns" where width = 18, align = AlignRight)
+        Format("±" + dev + "%" where width = 13, align = AlignRight)
+        Format(iters where width = 12, align = AlignRight)
+      ].values()))
 
   fun _print(msg: String) =>
     _env.out.print(msg)
