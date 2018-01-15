@@ -5,14 +5,10 @@ actor Main is BenchmarkList
     PonyBench(env, this)
 
   fun tag benchmarks(bench: PonyBench) =>
+    bench(_Nothing)
+    bench(_Fib(5))
     bench(_Fib(10))
     bench(_Fib(20))
-    bench(_Fib(5))
-    bench(_Nothing)
-    // bench(_Fib(5))
-    // bench(_Fib(10))
-    // bench(_Fib(20))
-    // bench(_Fib(40))
     bench(_Timer(10_000))
 
 class iso _Nothing is MicroBenchmark
