@@ -13,8 +13,8 @@ actor PonyBench
     _env = consume env
     _output_manager =
       if _env.args.contains("-csv", {(a, b) => a == b })
-      then _CSVOutput(_env, this)
-      else _TerminalOutput(_env, this)
+      then _CSVOutput(_env)
+      else _TerminalOutput(_env)
       end
 
     list.benchmarks(this)
@@ -24,14 +24,13 @@ actor PonyBench
     _bench_q.push(consume bench)
     if not _running then
       _running = true
-      _next_benchmark(_BenchData.dummy())
+      _next_benchmark()
     end
 
-  be _next_benchmark(bench_data: _BenchData) =>
+  be _next_benchmark() =>
     if _bench_q.size() > 0 then
       try
-        bench_data.reset(_bench_q.shift()?)
-        _runner(consume bench_data)
+        _runner(_bench_q.shift()?)
       end
     else
       _running = false
@@ -39,6 +38,7 @@ actor PonyBench
 
   be _complete(bench_data: _BenchData) =>
     _output_manager(consume bench_data)
+    _next_benchmark()
 
   be _fail(name: String) =>
     _env.err.print("Failed benchmark: " + name)

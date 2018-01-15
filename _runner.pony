@@ -1,9 +1,9 @@
-use "debug"
 use "time"
 
 actor _Runner
   let _ponybench: PonyBench
   var _config: BenchConfig = BenchConfig
+  var _results: Array[U64] iso = recover [] end
   var _iterations: U64 = 1
   var _warmup: Bool = false
   var _start_cpu_time: U64 = 0
@@ -12,50 +12,54 @@ actor _Runner
   new create(ponybench: PonyBench) =>
     _ponybench = ponybench
 
-  be apply(bench_data: _BenchData) =>
-    _config = bench_data.benchmark.config()
+  be apply(benchmark: MicroBenchmark) =>
+    _config = benchmark.config()
+    _results = recover Array[U64](_config.samples) end
     _iterations = 1
     _warmup = true
-    _run(consume bench_data)
+    _name = benchmark.name()
+    _run(consume benchmark)
 
-  fun ref _run(bench_data: _BenchData) =>
-    bench_data.benchmark.before()
+  fun ref _run(benchmark: MicroBenchmark) =>
+    benchmark.before()
     _gc_next_behavior()
-    _run_iteration(consume bench_data)
+    _run_iteration(consume benchmark)
 
-  be _run_iteration(bench_data: _BenchData, n: U64 = 0) =>
+  be _run_iteration(benchmark: MicroBenchmark, n: U64 = 0) =>
     if n == _iterations then
       let t' = Time.nanos()
       Time.perf_end()
-      _complete(consume bench_data, t' - _start_cpu_time)
+      _complete(consume benchmark, t' - _start_cpu_time)
     else
       if n == 0 then
         Time.perf_begin()
         _start_cpu_time = Time.nanos()
       end
       try \likely\
-        bench_data.benchmark()?
-        _run_iteration(consume bench_data, n + 1)
+        benchmark()?
+        _run_iteration(consume benchmark, n + 1)
       else
         _fail()
       end
     end
 
-  fun ref _complete(bench_data: _BenchData, t: U64) =>
-    bench_data.benchmark.after()
+  fun ref _complete(benchmark: MicroBenchmark, t: U64) =>
+    benchmark.after()
     if _warmup then
       match _calc_iterations(t)
       | let n: U64 => _iterations = n
       | None => _warmup = false
       end
-      _run(consume bench_data)
+      _run(consume benchmark)
     else
-      bench_data.push(t)
-      if bench_data.size() < _config.samples then
-        _run(consume bench_data)
+      _results.push(t)
+      if _results.size() < _config.samples then
+        _run(consume benchmark)
       else
-        bench_data.iterations = _iterations
-        _ponybench._complete(consume bench_data)
+        _ponybench._complete(_BenchData(
+          consume benchmark,
+          _results = recover [] end,
+          _iterations))
       end
     end
 

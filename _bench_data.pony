@@ -1,30 +1,22 @@
 use "collections"
 
+// TODO bad things happen when this is val?
 class iso _BenchData
-  var benchmark: MicroBenchmark
-  embed results: Array[U64]
-  var iterations: U64 = 0
+  let benchmark: MicroBenchmark val
+  let results: Array[U64]
+  let iterations: U64
 
-  new iso dummy() =>
-    benchmark = OverheadBenchmark
-    results = recover [] end
-
-  fun ref reset(benchmark': MicroBenchmark) =>
+  new iso create(
+    benchmark': MicroBenchmark,
+    results': Array[U64] iso,
+    iterations': U64)
+  =>
     benchmark = consume benchmark'
-    results.clear()
-    results.reserve(benchmark.config().samples)
-    iterations = 0
+    results = consume results'
+    iterations = iterations'
+    Sort[Array[U64], U64](results)
 
-  fun ref clear() =>
-    results.clear()
-
-  fun ref push(t: U64) =>
-    results.push(t)
-
-  fun ref size(): USize =>
-    results.size()
-
-  fun ref raw_str(): String =>
+  fun raw_str(): String =>
     let str = recover String end
     str .> append(benchmark.name()) .> append(",")
     for n in results.values() do
@@ -34,7 +26,7 @@ class iso _BenchData
     if results.size() > 0 then try str.pop()? end end
     str
 
-  fun ref sum(): U64 =>
+  fun sum(): U64 =>
     var sum': U64 = 0
     try
       for i in Range(0, results.size()) do
@@ -43,12 +35,11 @@ class iso _BenchData
     end
     sum'
 
-  fun ref mean(): F64 =>
+  fun mean(): F64 =>
     sum().f64() / results.size().f64()
 
-  fun ref median(): F64 =>
+  fun median(): F64 =>
     try
-      Sort[Array[U64], U64](results)
       let len = results.size()
       let i = len / 2
       if (len % 2) == 1 then
@@ -61,7 +52,7 @@ class iso _BenchData
       0
     end
 
-  fun ref std_dev(): F64 =>
+  fun std_dev(): F64 =>
     // sample standard deviation
     if results.size() < 2 then return 0 end
     try
