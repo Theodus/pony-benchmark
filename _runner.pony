@@ -1,7 +1,5 @@
 use "time"
 
-// TODO async with something simpler than a promise
-
 trait tag _Runner
   be apply()
 

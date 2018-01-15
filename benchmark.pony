@@ -22,7 +22,6 @@ interface iso AsyncMicroBenchmark
   fun box name(): String
   fun box config(): BenchConfig => BenchConfig
   fun box overhead(): AsyncMicroBenchmark^ => AsyncOverheadBenchmark
-  // TODO abstraction over Promise[None]
   fun ref before(c: AsyncBenchContinue) => c.complete()
   // TODO document (single iteration!!)
   fun ref apply(c: AsyncBenchContinue) ?
