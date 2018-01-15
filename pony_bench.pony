@@ -6,7 +6,6 @@ actor PonyBench
   let _env: Env
   let _output_manager: _OutputManager
   embed _bench_q: Array[MicroBenchmark] = Array[MicroBenchmark]
-  let _runner: _Runner = _Runner(this)
   var _running: Bool = false
 
   new create(env: Env, list: BenchmarkList) =>
@@ -30,7 +29,7 @@ actor PonyBench
   be _next_benchmark() =>
     if _bench_q.size() > 0 then
       try
-        _runner(_bench_q.shift()?)
+        _Runner(this, _bench_q.shift()?)
       end
     else
       _running = false
