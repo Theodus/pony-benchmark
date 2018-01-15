@@ -20,15 +20,16 @@ class _TerminalOutput is _OutputManager
     _print_heading()
 
   fun ref apply(results: _Results) =>
-    // _print(results.raw_str())
-    if results.benchmark.name() == "Benchmark Overhead" then
-      _overhead_mean = results.mean() / results.iterations.f64()
-      _overhead_median = results.median() / results.iterations.f64()
-      // _print_benchmark(consume results, false)
+    if results.name == "Benchmark Overhead" then
+      if _noadjust then
+        _print_benchmark(consume results, false)
+      else
+        _overhead_mean = results.mean() / results.iterations.f64()
+        _overhead_median = results.median() / results.iterations.f64()
+      end
     else
       _print_benchmark(consume results, not _noadjust)
     end
-    // _ponybench._next_benchmark()
 
   fun ref _print_benchmark(results: _Results, adjust: Bool) =>
     let iters = results.iterations.f64()
@@ -44,7 +45,7 @@ class _TerminalOutput is _OutputManager
     let relative_std_dev = (std_dev * 100) / mean'
 
     _print_result(
-      results.benchmark.name(),
+      results.name,
       mean.round().i64().string(),
       median.round().i64().string(),
       Format.float[F64](relative_std_dev where prec = 2, fmt = FormatFix),

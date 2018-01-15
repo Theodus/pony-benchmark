@@ -1,24 +1,20 @@
 use "collections"
 
-// TODO bad things happen when this is val!?
+// TODO check if bad things happen when this is val!?
 class iso _Results
-  let benchmark: MicroBenchmark val
+  let name: String
   let samples: Array[U64]
   let iterations: U64
 
-  new iso create(
-    benchmark': MicroBenchmark,
-    samples': Array[U64] iso,
-    iterations': U64)
-  =>
-    benchmark = consume benchmark'
+  new iso create(name': String, samples': Array[U64] iso, iterations': U64) =>
+    name = name'
     samples = consume samples'
     iterations = iterations'
     Sort[Array[U64], U64](samples)
 
   fun raw_str(): String =>
     let str = recover String end
-    str .> append(benchmark.name()) .> append(",")
+    str .> append(name) .> append(",")
     for n in samples.values() do
       let nspi = n / iterations
       str .> append(nspi.string()) .> append(",")

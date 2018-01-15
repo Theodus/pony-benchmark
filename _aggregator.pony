@@ -13,20 +13,20 @@ class ref _Aggregator
     _config = config
     _samples = recover Array[U64](_config.samples) end
 
-  fun ref complete(benchmark: MicroBenchmark, t: U64) =>
+  fun ref complete(name: String, t: U64) =>
     if _warmup then
       match _calc_iterations(t)
       | let n: U64 => iterations = n
       | None => _warmup = false
       end
-      _runner(consume benchmark)
+      _runner()
     else
       _samples.push(t)
       if _samples.size() < _config.samples then
-        _runner(consume benchmark)
+        _runner()
       else
         _ponybench._complete(_Results(
-          consume benchmark,
+          name,
           _samples = recover [] end,
           iterations))
       end

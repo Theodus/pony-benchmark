@@ -1,3 +1,14 @@
+use "promises"
+
+type _Benchmark is
+  ( MicroBenchmark
+  | AsyncMicroBenchmark
+  )
+
+// interface iso _IBenchmark
+//   fun box name(): String
+//   fun box config(): BenchConfig
+//   fun box overhead(): _IBenchmark^
 
 interface iso MicroBenchmark
   fun box name(): String
@@ -7,6 +18,16 @@ interface iso MicroBenchmark
   // TODO document (single iteration!!)
   fun ref apply() ?
   fun ref after() => None
+
+interface iso AsyncMicroBenchmark
+  fun box name(): String
+  fun box config(): BenchConfig => BenchConfig
+  fun box overhead(): AsyncMicroBenchmark^ => AsyncOverheadBenchmark
+  // TODO abstraction over Promise[None]
+  fun ref before(p: Promise[None]) => p(None)
+  // TODO document (single iteration!!)
+  fun ref apply(p: Promise[None]) ?
+  fun ref after(p: Promise[None]) => p(None)
 
 interface tag BenchmarkList
   fun tag benchmarks(bench: PonyBench)
@@ -33,3 +54,10 @@ class iso OverheadBenchmark is MicroBenchmark
   fun ref apply() =>
     DoNotOptimise[None](None)
     DoNotOptimise.observe()
+
+class iso AsyncOverheadBenchmark is AsyncMicroBenchmark
+  fun name(): String =>
+    "Benchmark Overhead"
+
+  fun ref apply(p: Promise[None]) =>
+    p(None)
