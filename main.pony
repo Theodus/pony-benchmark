@@ -1,4 +1,3 @@
-use "promises"
 use "time"
 
 actor Main is BenchmarkList
@@ -51,11 +50,11 @@ class iso _Timer is AsyncMicroBenchmark
   fun name(): String =>
     "_Timer(" + _ns.string() + ")"
 
-  fun apply(p: Promise[None]) =>
+  fun apply(c: AsyncBenchContinue) =>
     _ts(Timer(
       object iso is TimerNotify
         fun apply(timer: Timer, count: U64 = 0): Bool =>
-          p(None)
+          c.complete()
           false
       end,
       _ns))
