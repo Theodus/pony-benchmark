@@ -5,7 +5,7 @@
 actor PonyBench
   let _env: Env
   let _output_manager: _OutputManager
-  embed _bench_q: Array[_Benchmark] = Array[_Benchmark]
+  embed _bench_q: Array[Benchmark] = Array[Benchmark]
   var _running: Bool = false
 
   new create(env: Env, list: BenchmarkList) =>
@@ -18,7 +18,7 @@ actor PonyBench
 
     list.benchmarks(this)
 
-  be apply(bench: _Benchmark) =>
+  be apply(bench: Benchmark) =>
     // TODO this is ugly and it makes me sad,
     // but an F-bounded polymorphic interface and a union
     // don't get along well in an intersection type.

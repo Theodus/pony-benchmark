@@ -94,7 +94,6 @@ actor _RunAsync is _Runner
       try \likely\
         _n = _n + 1
         _bench(_bench_cont)?
-        // _run_iteration(n + 1)
       else
         _fail()
       end

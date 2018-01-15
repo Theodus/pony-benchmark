@@ -1,15 +1,12 @@
 
-type _Benchmark is
-  ( MicroBenchmark
-  | AsyncMicroBenchmark
-  )
+type Benchmark is (MicroBenchmark | AsyncMicroBenchmark)
 
 // interface iso _IBenchmark
 //   fun box name(): String
 //   fun box config(): BenchConfig
 //   fun box overhead(): _IBenchmark^
 
-interface iso MicroBenchmark
+trait iso MicroBenchmark
   fun box name(): String
   fun box config(): BenchConfig => BenchConfig
   fun box overhead(): MicroBenchmark^ => OverheadBenchmark
@@ -18,7 +15,7 @@ interface iso MicroBenchmark
   fun ref apply() ?
   fun ref after() => None
 
-interface iso AsyncMicroBenchmark
+trait iso AsyncMicroBenchmark
   fun box name(): String
   fun box config(): BenchConfig => BenchConfig
   fun box overhead(): AsyncMicroBenchmark^ => AsyncOverheadBenchmark
