@@ -36,8 +36,8 @@ actor PonyBench
       _running = false
     end
 
-  be _complete(bench_data: _BenchData) =>
-    _output_manager(consume bench_data)
+  be _complete(results: _Results) =>
+    _output_manager(consume results)
     _next_benchmark()
 
   be _fail(name: String) =>

@@ -3,7 +3,7 @@ use "time"
 actor _Runner
   let _ponybench: PonyBench
   var _config: BenchConfig = BenchConfig
-  var _results: Array[U64] iso = recover [] end
+  var _samples: Array[U64] iso = recover [] end
   var _iterations: U64 = 1
   var _warmup: Bool = false
   var _start_cpu_time: U64 = 0
@@ -14,7 +14,7 @@ actor _Runner
 
   be apply(benchmark: MicroBenchmark) =>
     _config = benchmark.config()
-    _results = recover Array[U64](_config.samples) end
+    _samples = recover Array[U64](_config.samples) end
     _iterations = 1
     _warmup = true
     _name = benchmark.name()
@@ -52,13 +52,13 @@ actor _Runner
       end
       _run(consume benchmark)
     else
-      _results.push(t)
-      if _results.size() < _config.samples then
+      _samples.push(t)
+      if _samples.size() < _config.samples then
         _run(consume benchmark)
       else
-        _ponybench._complete(_BenchData(
+        _ponybench._complete(_Results(
           consume benchmark,
-          _results = recover [] end,
+          _samples = recover [] end,
           _iterations))
       end
     end

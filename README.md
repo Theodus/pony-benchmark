@@ -59,7 +59,7 @@ close all; clear; clc
 
 M = csvread('data.csv',0,1);
 M = M'; % transpose so that results are column vectors
-overhead = median(M(:,1:2:end))
+overhead = median(M(:,1:2:end));
 ops = M(:,2:2:end);
 pows = 0:1:20;
 sizes = 2.^pows;

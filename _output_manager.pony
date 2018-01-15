@@ -2,7 +2,7 @@ use "format"
 use "term"
 
 interface _OutputManager
-  fun ref apply(bench_data: _BenchData)
+  fun ref apply(results: _Results)
 
 class _TerminalOutput is _OutputManager
   let _env: Env
@@ -19,32 +19,32 @@ class _TerminalOutput is _OutputManager
     end
     _print_heading()
 
-  fun ref apply(bench_data: _BenchData) =>
-    // _print(bench_data.raw_str())
-    if bench_data.benchmark.name() == "Benchmark Overhead" then
-      _overhead_mean = bench_data.mean() / bench_data.iterations.f64()
-      _overhead_median = bench_data.median() / bench_data.iterations.f64()
-      // _print_benchmark(consume bench_data, false)
+  fun ref apply(results: _Results) =>
+    // _print(results.raw_str())
+    if results.benchmark.name() == "Benchmark Overhead" then
+      _overhead_mean = results.mean() / results.iterations.f64()
+      _overhead_median = results.median() / results.iterations.f64()
+      // _print_benchmark(consume results, false)
     else
-      _print_benchmark(consume bench_data, not _noadjust)
+      _print_benchmark(consume results, not _noadjust)
     end
     // _ponybench._next_benchmark()
 
-  fun ref _print_benchmark(bench_data: _BenchData, adjust: Bool) =>
-    let iters = bench_data.iterations.f64()
-    let mean' = bench_data.mean()
+  fun ref _print_benchmark(results: _Results, adjust: Bool) =>
+    let iters = results.iterations.f64()
+    let mean' = results.mean()
     var mean = mean' / iters
-    var median = bench_data.median() / iters
+    var median = results.median() / iters
     if adjust then
       mean = mean - _overhead_mean
       median =  median - _overhead_median
     end
 
-    let std_dev = bench_data.std_dev()
+    let std_dev = results.std_dev()
     let relative_std_dev = (std_dev * 100) / mean'
 
     _print_result(
-      bench_data.benchmark.name(),
+      results.benchmark.name(),
       mean.round().i64().string(),
       median.round().i64().string(),
       Format.float[F64](relative_std_dev where prec = 2, fmt = FormatFix),
@@ -95,8 +95,8 @@ class _CSVOutput
   new create(env: Env) =>
     _env = env
 
-  fun ref apply(bench_data: _BenchData) =>
-    _print(bench_data.raw_str())
+  fun ref apply(results: _Results) =>
+    _print(results.raw_str())
 
   fun _print(msg: String) =>
     _env.out.print(msg)
