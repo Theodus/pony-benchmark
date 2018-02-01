@@ -2,6 +2,8 @@
 // TODO document that this is best used with
 // --runtimebc and --ponynoyield
 
+// TODO print "no benchmarks found" if no benchmarks.
+
 actor PonyBench
   let _env: Env
   let _output_manager: _OutputManager

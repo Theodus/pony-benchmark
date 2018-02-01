@@ -20,6 +20,7 @@ class _TerminalOutput is _OutputManager
     _print_heading()
 
   fun ref apply(results: _Results) =>
+    // TODO identity check rather than this brittle name check.
     if results.name == "Benchmark Overhead" then
       if _noadjust then
         _print_benchmark(consume results, false)
