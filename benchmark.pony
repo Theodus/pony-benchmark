@@ -11,7 +11,8 @@ trait iso MicroBenchmark
   fun box config(): BenchConfig => BenchConfig
   fun box overhead(): MicroBenchmark^ => OverheadBenchmark
   fun ref before() => None
-  // TODO document (single iteration!!)
+  // TODO document
+  // single iteration -> max_iterations = 1, sample_size = <large>
   fun ref apply() ?
   fun ref after() => None
 
