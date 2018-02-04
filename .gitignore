@@ -1,5 +1,6 @@
 pony-benchmark
-examples/async/async
+examples/async-simple/async-simple
 examples/simple/simple
 examples/custom-config/custom-config
 examples/custom-config/data.csv
+examples/tcp-connect/tcp-connect
