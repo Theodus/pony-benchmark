@@ -12,6 +12,10 @@ actor PonyBench
 
   new create(env: Env, list: BenchmarkList) =>
     _env = consume env
+    ifdef debug then
+      _env.err.print("***WARNING*** Benchmark was built as DEBUG. Timings may be affected.")
+    end
+
     _output_manager =
       if _env.args.contains("-csv", {(a, b) => a == b })
       then _CSVOutput(_env)
