@@ -8,7 +8,6 @@ actor _RunSync is _Runner
   embed _aggregator: _Aggregator
   let _name: String
   let _bench: MicroBenchmark
-  var _start_cpu_time: U64 = 0
 
   new create(ponybench: PonyBench, benchmark: MicroBenchmark) =>
     _ponybench = ponybench
@@ -22,19 +21,17 @@ actor _RunSync is _Runner
     _gc_next_behavior()
     _run_iteration()
 
-  be _run_iteration(n: U64 = 0) =>
+  be _run_iteration(n: U64 = 0, a: U64 = 0) =>
     if n == _aggregator.iterations then
-      let t' = Time.nanos()
-      Time.perf_end()
-      _complete(t' - _start_cpu_time)
+      _complete(a)
     else
-      if n == 0 then
-        Time.perf_begin()
-        _start_cpu_time = Time.nanos()
-      end
       try \likely\
+        Time.perf_begin()
+        let s = Time.nanos()
         _bench()?
-        _run_iteration(n + 1)
+        let e = Time.nanos()
+        Time.perf_end()
+        _run_iteration(n + 1, a + (e - s))
       else
         _fail()
       end
@@ -55,9 +52,9 @@ actor _RunAsync is _Runner
   embed _aggregator: _Aggregator
   let _name: String
   let _bench: AsyncMicroBenchmark ref
-  var _start_cpu_time: U64 = 0
-  var _end_cpu_time: U64 = 0
+  var _start_time: U64 = 0
   var _n: U64 = 0
+  var _a: U64 = 0
 
   embed _before_cont: AsyncBenchContinue =
     AsyncBenchContinue._create(this, recover this~_apply_cont() end)
@@ -76,23 +73,24 @@ actor _RunAsync is _Runner
   be apply() =>
     _bench.before(_before_cont)
 
-  be _apply_cont() =>
+  be _apply_cont(e: U64) =>
     _n = 0
+    _a = 0
+    _start_time = 0
     _gc_next_behavior()
-    _run_iteration()
+    _run_iteration(0)
 
-  be _run_iteration() =>
+  be _run_iteration(e: U64) =>
+    if _start_time > 0 then
+      _a = _a + (e - _start_time)
+    end
     if _n == _aggregator.iterations then
-      _end_cpu_time = Time.nanos()
-      Time.perf_end()
       _complete()
     else
-      if _n == 0 then
-        Time.perf_begin()
-        _start_cpu_time = Time.nanos()
-      end
       try \likely\
         _n = _n + 1
+        Time.perf_begin()
+        _start_time = Time.nanos()
         _bench(_bench_cont)?
       else
         _fail()
@@ -102,9 +100,8 @@ actor _RunAsync is _Runner
   be _complete() =>
     _bench.after(_after_cont)
 
-  be _complete_cont() =>
-    let t = _end_cpu_time - _start_cpu_time
-    _aggregator.complete(_name, t)
+  be _complete_cont(e: U64) =>
+    _aggregator.complete(_name, _a)
 
   be _fail() =>
     _ponybench._fail(_name)
@@ -114,14 +111,16 @@ actor _RunAsync is _Runner
 
 class val AsyncBenchContinue
   let _run_async: _RunAsync
-  let _f: {()} val
+  let _f: {(U64)} val
 
-  new val _create(run_async: _RunAsync, f: {()} val) =>
+  new val _create(run_async: _RunAsync, f: {(U64)} val) =>
     _run_async = run_async
     _f = f
 
   fun complete() =>
-    _f()
+    let e = Time.nanos()
+    Time.perf_end()
+    _f(e)
 
   fun fail() =>
     _run_async._fail()
