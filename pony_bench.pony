@@ -7,7 +7,7 @@
 actor PonyBench
   let _env: Env
   let _output_manager: _OutputManager
-  embed _bench_q: Array[Benchmark] = Array[Benchmark]
+  embed _bench_q: Array[(Benchmark, Bool)] = Array[(Benchmark, Bool)]
   var _running: Bool = false
 
   new create(env: Env, list: BenchmarkList) =>
@@ -25,16 +25,13 @@ actor PonyBench
     list.benchmarks(this)
 
   be apply(bench: Benchmark) =>
-    // TODO this is ugly and it makes me sad,
-    // but an F-bounded polymorphic interface and a union
-    // don't get along well in an intersection type.
     match consume bench
     | let b: MicroBenchmark =>
-      _bench_q.push(b.overhead())
-      _bench_q.push(consume b)
+      _bench_q.push((b.overhead(), true))
+      _bench_q.push((consume b, false))
     | let b: AsyncMicroBenchmark =>
-      _bench_q.push(b.overhead())
-      _bench_q.push(consume b)
+      _bench_q.push((b.overhead(), true))
+      _bench_q.push((consume b, false))
     end
 
     if not _running then
@@ -46,8 +43,10 @@ actor PonyBench
     if _bench_q.size() > 0 then
       try
         match _bench_q.shift()?
-        | let b: MicroBenchmark => _RunSync(this, consume b)
-        | let b: AsyncMicroBenchmark => _RunAsync(this, consume b)
+        | (let b: MicroBenchmark, let overhead: Bool) =>
+          _RunSync(this, consume b, overhead)
+        | (let b: AsyncMicroBenchmark, let overhead: Bool) =>
+          _RunAsync(this, consume b, overhead)
         end
       end
     else

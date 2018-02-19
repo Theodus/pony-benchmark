@@ -9,9 +9,13 @@ actor _RunSync is _Runner
   let _name: String
   let _bench: MicroBenchmark
 
-  new create(ponybench: PonyBench, benchmark: MicroBenchmark) =>
+  new create(
+    ponybench: PonyBench,
+    benchmark: MicroBenchmark,
+    overhead: Bool)
+  =>
     _ponybench = ponybench
-    _aggregator = _Aggregator(_ponybench, this, benchmark.config())
+    _aggregator = _Aggregator(_ponybench, this, benchmark.config(), overhead)
     _name = benchmark.name()
     _bench = consume benchmark
     apply()
@@ -63,9 +67,13 @@ actor _RunAsync is _Runner
   embed _after_cont: AsyncBenchContinue =
     AsyncBenchContinue._create(this, recover this~_complete_cont() end)
 
-  new create(ponybench: PonyBench, benchmark: AsyncMicroBenchmark) =>
+  new create(
+    ponybench: PonyBench,
+    benchmark: AsyncMicroBenchmark,
+    overhead: Bool)
+  =>
     _ponybench = ponybench
-    _aggregator = _Aggregator(_ponybench, this, benchmark.config())
+    _aggregator = _Aggregator(_ponybench, this, benchmark.config(), overhead)
     _name = benchmark.name()
     _bench = consume benchmark
     apply()

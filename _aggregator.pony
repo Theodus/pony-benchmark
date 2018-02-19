@@ -2,14 +2,21 @@
 class ref _Aggregator
   let _ponybench: PonyBench
   let _runner: _Runner
+  let _overhead: Bool
   let _config: BenchConfig
   var _samples: Array[U64] iso
   var _warmup: Bool = true
   var iterations: U64 = 1
 
-  new create(ponybench: PonyBench, runner: _Runner, config: BenchConfig) =>
+  new create(
+    ponybench: PonyBench,
+    runner: _Runner,
+    config: BenchConfig,
+    overhead: Bool)
+  =>
     _ponybench = ponybench
     _runner = runner
+    _overhead = overhead
     _config = config
     _samples = recover Array[U64](_config.samples) end
 
@@ -28,7 +35,8 @@ class ref _Aggregator
         _ponybench._complete(_Results(
           name,
           _samples = recover [] end,
-          iterations))
+          iterations,
+          _overhead))
       end
     end
 

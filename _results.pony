@@ -5,11 +5,18 @@ class iso _Results
   let name: String
   let samples: Array[U64]
   let iterations: U64
+  let overhead: Bool
 
-  new iso create(name': String, samples': Array[U64] iso, iterations': U64) =>
+  new iso create(
+    name': String,
+    samples': Array[U64] iso,
+    iterations': U64,
+    overhead': Bool)
+  =>
     name = name'
     samples = consume samples'
     iterations = iterations'
+    overhead = overhead'
     Sort[Array[U64], U64](samples)
 
   fun raw_str(): String =>
