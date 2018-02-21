@@ -1,13 +1,12 @@
 use "collections"
 
-// TODO check if bad things happen when this is val!?
-class iso _Results
+class val _Results
   let name: String
   let samples: Array[U64]
   let iterations: U64
   let overhead: Bool
 
-  new iso create(
+  new val create(
     name': String,
     samples': Array[U64] iso,
     iterations': U64,
