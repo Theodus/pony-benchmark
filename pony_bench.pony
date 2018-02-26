@@ -99,9 +99,11 @@ _Fib(20)                                30470 ns          30304 ns      ±1.55% 
 Benchmark Overhead                        552 ns            552 ns      ±0.39%      300000
 _Timer (10000 ns)                       10780 ns          10800 ns      ±3.60%       10000
 ```
+
+It is recommended that a PonyBench program is compiled with the `--runtimebc`
+option, if possible, and run with the `--ponynoyield` option.
 """
-// TODO document that this is best used with
-// --runtimebc and --ponynoyield
+// TODO more examples in tutorial
 
 actor PonyBench
   let _env: Env

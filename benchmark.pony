@@ -7,12 +7,21 @@ type Benchmark is (MicroBenchmark | AsyncMicroBenchmark)
 //   fun box overhead(): _IBenchmark^
 
 trait iso MicroBenchmark
+  """
+  Synchronous benchmarks must provide this trait. The `apply` method defines a
+  single iteration in a sample. Setup and Teardown are defined by the `before`
+  and `after` methods respectively. The `before` method runs before a sample
+  of benchmarks and `after` runs after the all iterations in the sample have
+  completed. If your benchmark requires setup and/or teardown to occur beween
+  each iteration of the benchmark, then you must set the configuration of the
+  benchmark to have `max_iterations = 1`. It should be noted that a larger
+  `sample_size` may be necessary in this scenario for statistically
+  significant results.
+  """
   fun box name(): String
   fun box config(): BenchConfig => BenchConfig
   fun box overhead(): MicroBenchmark^ => OverheadBenchmark
   fun ref before() => None
-  // TODO document
-  // single iteration -> max_iterations = 1, sample_size = <large>
   fun ref apply() ?
   fun ref after() => None
 
